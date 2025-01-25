@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
+use App\Traits\ApiResponse;
 
 class UserController extends Controller
 {
+    use ApiResponse;
+
     protected $userService;
 
     public function __construct(UserService $userService)
@@ -19,30 +22,46 @@ class UserController extends Controller
     public function index()
     {
         $users = $this->userService->getAll();
-        return UserResource::collection($users);
+        return $this->successResponse(
+            UserResource::collection($users),
+            'Users retrieved successfully'
+        );
     }
 
     public function store(UserRequest $request)
     {
         $user = $this->userService->create($request->validated());
-        return new UserResource($user);
+        return $this->successResponse(
+            new UserResource($user),
+            'User created successfully',
+            201
+        );
     }
 
     public function show(string $id)
     {
         $user = $this->userService->findById($id);
-        return new UserResource($user);
+        return $this->successResponse(
+            new UserResource($user),
+            'User retrieved successfully'
+        );
     }
 
     public function update(UserRequest $request, string $id)
     {
         $user = $this->userService->update($id, $request->validated());
-        return new UserResource($user);
+        return $this->successResponse(
+            new UserResource($user),
+            'User updated successfully'
+        );
     }
 
     public function destroy(string $id)
     {
         $this->userService->delete($id);
-        return response()->noContent();
+        return $this->successResponse(
+            null,
+            'User deleted successfully'
+        );
     }
 }

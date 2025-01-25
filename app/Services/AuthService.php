@@ -9,33 +9,37 @@ class AuthService
 {
     public function register(array $data)
     {
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password'])
-        ]);
+        try {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password'])
+            ]);
 
-        return $this->generateAuthResponse($user);
+            return [
+                'user' => $user,
+                'token' => $user->createToken('auth-token')->plainTextToken
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception('Error registering user: ' . $e->getMessage());
+        }
     }
 
     public function login(array $credentials)
     {
-        $user = User::where('email', $credentials['email'])->first();
+        try {
+            $user = User::where('email', $credentials['email'])->first();
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return null;
+            if (!$user || !Hash::check($credentials['password'], $user->password)) {
+                return null;
+            }
+
+            return [
+                'user' => $user,
+                'token' => $user->createToken('auth-token')->plainTextToken
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception('Error during login: ' . $e->getMessage());
         }
-
-        return $this->generateAuthResponse($user);
-    }
-
-    private function generateAuthResponse(User $user)
-    {
-        $token = $user->createToken('auth-token')->plainTextToken;
-
-        return [
-            'user' => $user,
-            'token' => $token
-        ];
     }
 }

@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\AuthService;
+use App\Traits\ApiResponse;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
+
     protected $authService;
 
     public function __construct(AuthService $authService)
@@ -19,7 +22,7 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         $response = $this->authService->register($request->validated());
-        return response()->json($response);
+        return $this->successResponse($response, 'User registered successfully');
     }
 
     public function login(LoginRequest $request)
@@ -27,11 +30,9 @@ class AuthController extends Controller
         $response = $this->authService->login($request->validated());
 
         if (!$response) {
-            return response()->json([
-                'message' => 'Credenciales incorrectas'
-            ], 401);
+            return $this->errorResponse('Invalid credentials', 401);
         }
 
-        return response()->json($response);
+        return $this->successResponse($response, 'Login successful');
     }
 }
