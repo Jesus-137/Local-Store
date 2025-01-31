@@ -26,4 +26,9 @@ class Contact extends Model
     protected $casts = [
         'birth_date' => 'date',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
