@@ -1,5 +1,5 @@
 # Contacts
 
-Noé Alejandro
+- Noé Alejandro
 
 - Joel de Jesus 
