@@ -1,4 +1,7 @@
 # Contacts
 
-Noé Alejandro 
-Jesus Velazquez
+- Noé Alejandro
+
+- Joel de Jesus 
+
+- Jesus Velazquez
