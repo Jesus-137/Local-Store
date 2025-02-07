@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('middle_name')->nullable();
-            $table->string('email')->unique();
+            $table->string('email');
             $table->string('phone_code');
             $table->string('phone_number');
             $table->string('state');
@@ -25,6 +25,14 @@ return new class extends Migration
             $table->date('birth_date');
             $table->text('notes')->nullable();
             $table->timestamps();
+            $table->index('phone_number');
+            $table->index('email');
+            $table->index(['first_name', 'last_name']);
+
+            $table->unique(['email', 'user_id']);
+
+            $table->fullText(['first_name', 'last_name', 'middle_name', 'email']);
+            $table->fullText(['notes']);
         });
     }
 
