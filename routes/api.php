@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\AppointmentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -21,4 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/contacts/{id}', [ContactController::class, 'show']);
     Route::patch('/contacts/{id}', [ContactController::class, 'update']);
     Route::delete('/contacts/{id}', [ContactController::class, 'destroy']);
+
+    Route::get('/appointments', [AppointmentController::class, 'index']);
+    Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
+    Route::patch('/appointments/{id}', [AppointmentController::class, 'update']);
+    Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
 });
