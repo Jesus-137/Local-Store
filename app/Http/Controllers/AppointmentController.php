@@ -24,12 +24,12 @@ class AppointmentController extends Controller
             $query->where('status', $request->status);
         }
 
-        if ($request->has(['start_date', 'end_date'])) {
-            $query->whereBetween('start', [
+        $query->when($request->has(['start_date', 'end_date']), function ($q) use ($request) {
+            return $q->whereBetween('start', [
                 $request->start_date . ' 00:00:00',
                 $request->end_date . ' 23:59:59'
             ]);
-        }
+        });
 
         $appointments = $query->orderBy('start', 'desc')
             ->paginate($request->input('per_page', 15));
