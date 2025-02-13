@@ -74,15 +74,18 @@ class ContactController extends Controller
             'page' => 'integer|min:1'
         ]);
 
-        $query = $request->input('query');
+        $input = $request->input('query');
         $perPage = $request->input('per_page', 15);
 
         $contacts = Auth::user()
             ->contacts()
-            ->whereFullText(['first_name', 'last_name', 'middle_name', 'email'], $query)
-            ->orWhere(function ($q) use ($query) {
-                $q->where('phone_number', 'LIKE', "%{$query}%")
-                    ->orWhereFullText('notes', $query);
+            ->where(function ($q) use ($input) {
+                $q->where('first_name', 'LIKE', $input . '%')
+                  ->orWhere('last_name', 'LIKE', $input . '%')
+                  ->orWhere('middle_name', 'LIKE', $input . '%')
+                  ->orWhere('email', 'LIKE', '%' . $input . '%')
+                  ->orWhere('phone_number', 'LIKE', '%' . $input . '%')
+                  ->orWhere('notes', 'LIKE', '%' . $input . '%');
             })
             ->orderBy('first_name')
             ->paginate($perPage);
