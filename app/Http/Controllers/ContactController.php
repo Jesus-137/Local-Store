@@ -60,9 +60,13 @@ class ContactController extends Controller
         $contact = $user->contacts()->findOrFail($id);
         $contact->delete();
 
+        $contacts = $user->contacts()
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return response()->json([
             'message' => 'Contact deleted successfully.',
-            'contacts' => $user->contacts
+            'contacts' => $contacts
         ], 200);
     }
 
