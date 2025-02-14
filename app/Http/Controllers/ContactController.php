@@ -76,17 +76,45 @@ class ContactController extends Controller
 
         $input = $request->input('query');
         $perPage = $request->input('per_page', 15);
+        $user = Auth::user();
 
-        $contacts = Auth::user()
-            ->contacts()
+        $exactMatches = $user->contacts()
             ->where(function ($q) use ($input) {
                 $q->where('first_name', 'LIKE', $input . '%')
-                  ->orWhere('last_name', 'LIKE', $input . '%')
-                  ->orWhere('middle_name', 'LIKE', $input . '%')
-                  ->orWhere('email', 'LIKE', '%' . $input . '%')
-                  ->orWhere('phone_number', 'LIKE', '%' . $input . '%')
-                  ->orWhere('notes', 'LIKE', '%' . $input . '%');
+                    ->orWhere('last_name', 'LIKE', $input . '%')
+                    ->orWhere('middle_name', 'LIKE', $input . '%');
             })
+            ->select(
+                '*',
+                \DB::raw('1 as priority'),
+                \DB::raw("CASE
+                    WHEN first_name LIKE '{$input}%' THEN 1
+                    WHEN last_name LIKE '{$input}%' THEN 2
+                    WHEN middle_name LIKE '{$input}%' THEN 3
+                    ELSE 4
+                END as match_order")
+            );
+
+        $partialMatches = $user->contacts()
+            ->where(function ($q) use ($input) {
+                $q->where('first_name', 'LIKE', '%' . $input . '%')
+                    ->orWhere('last_name', 'LIKE', '%' . $input . '%')
+                    ->orWhere('middle_name', 'LIKE', '%' . $input . '%')
+                    ->orWhere('email', 'LIKE', '%' . $input . '%')
+                    ->orWhere('phone_number', 'LIKE', '%' . $input . '%')
+                    ->orWhere('notes', 'LIKE', '%' . $input . '%');
+            })
+            ->whereNotIn('id', $exactMatches->pluck('id'))
+            ->select(
+                '*',
+                \DB::raw('2 as priority'),
+                \DB::raw('4 as match_order')
+            );
+
+        $contacts = $exactMatches
+            ->union($partialMatches)
+            ->orderBy('priority')
+            ->orderBy('match_order')
             ->orderBy('first_name')
             ->paginate($perPage);
 
