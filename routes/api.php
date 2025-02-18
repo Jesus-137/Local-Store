@@ -16,7 +16,6 @@ Route::get('/users', [AuthController::class, 'getUsers'])->middleware('auth:sanc
 Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/contacts', [ContactController::class, 'index']);
     Route::post('/contacts', [ContactController::class, 'store']);
     Route::get('/contacts/search', [ContactController::class, 'search']);
     Route::get('/contacts/{id}', [ContactController::class, 'show']);

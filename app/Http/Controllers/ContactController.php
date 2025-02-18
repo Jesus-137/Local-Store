@@ -73,14 +73,26 @@ class ContactController extends Controller
     public function search(Request $request)
     {
         $request->validate([
-            'query' => 'required|string|min:1',
+            'query' => 'nullable|string',
             'per_page' => 'integer|min:1|max:100',
-            'page' => 'integer|min:1'
+            'page' => 'integer|min:1',
+            'sort_by' => 'string|in:first_name,last_name,email,created_at',
+            'sort_order' => 'string|in:asc,desc'
         ]);
 
         $input = $request->input('query');
         $perPage = $request->input('per_page', 15);
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
         $user = Auth::user();
+
+        if (!$input) {
+            return response()->json(
+                $user->contacts()
+                    ->orderBy($sortBy, $sortOrder)
+                    ->paginate($perPage)
+            );
+        }
 
         $exactMatches = $user->contacts()
             ->where(function ($q) use ($input) {
